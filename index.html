@@ -10,48 +10,11 @@
 </head>
 <body>
   <div id="app">
-    <el-select v-model="selected" placeholder="请选择">
-      <el-option
-        v-for="item in selectOptions"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value">
-      </el-option>
-    </el-select>
-    <el-button type="primary" @click="addComponent">添加组件</el-button>
-    <el-button type="primary" @click="savePage">保存页面配置</el-button>
-    <grid-layout
-      :layout="layout"
-      :col-num="12"
-      :row-height="30"
-      :is-draggable="true"
-      :is-resizable="true"
-      :is-mirrored="false"
-      :vertical-compact="true"
-      :margin="[10, 10]"
-      :use-css-transforms="true"
-      @layout-updated="layoutUpdatedEvent"
-    >
-      <grid-item
-        v-for="item in layout"
-        :x="item.x"
-        :y="item.y"
-        :w="item.w"
-        :h="item.h"
-        :i="item.i">
-        <div class="grid-item-operate">
-          <i class="el-icon-edit" @click="editItem(item.i)"></i>
-          <i class="el-icon-delete" @click="deleteItem(item.i)"></i>
-        </div>
-        <component v-if="item.component" v-bind:is="item.component"></component>
-        {{item.component ? '' : item.i}}
-      </grid-item>
-    </grid-layout>
+   
   </div>
-  <div id="beforeCache"></div>
-  <script src="./lib/vue.min.js"></script>
-  <script src="./lib/vue-grid-layout.umd.min.js"></script>
-  <script src="./lib/element.index.js"></script>
+  <script src="./lib/moment.min.js"></script>
+  <script src="./lib/react.production.min.js"></script>
+  <script src="./lib/react-dom.production.min.js"></script>
   <script src="./lib/axios.min.js"></script>
   <script src="./lib/mock-min.js"></script>
   <script src="./engine/ParsingEngine.js"></script>
