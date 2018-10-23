@@ -43,7 +43,10 @@
           <i class="el-icon-edit" @click="editItem(item.i)"></i>
           <i class="el-icon-delete" @click="deleteItem(item.i)"></i>
         </div>
-        <component v-if="item.component" v-bind:is="item.component"></component>
+        <component
+          v-if="item.component"
+          v-bind:is="item.component"
+          ></component>
         {{item.component ? '' : item.i}}
       </grid-item>
     </grid-layout>
