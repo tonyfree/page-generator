@@ -1,3 +1,25 @@
+Vue.component('JTable', {
+  template: '' +
+    '<el-table :data="tableData" style="width: 100%">' +
+      '<el-table-column v-for="col in tableOptions" :prop="col.field" :label="col.title" fixed>' +
+      '</el-table-column>' +
+    '</el-table>',
+    data: function() {
+      return {
+        tableData: [],
+        // tableOptions: [{title:'',field:''},{title:'',field:''},{title:'',field:''}],
+        // apiUrl: '',
+        tableOptions: [{title:'设备名称',field:'name'},{title:'设备型号',field:'type'},{title:'设备价格',field:'price'}],
+        apiUrl: 'http://rap2api.taobao.org/app/mock/95259/equipment/list'
+      }
+    },
+    created: function() {
+      axios.post(this.apiUrl).then(res => {
+        this.tableData = res.data.lists
+      })
+    },
+})
+
 let Table  = {
   options: {
     template: ''+
