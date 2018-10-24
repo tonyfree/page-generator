@@ -17,49 +17,41 @@
         editID: ''
       },
       created: function () {
-        window.eventBus.$on('addTableComponent', (params) => {
-          console.log(params)
+        window.eventBus.$on('createComponent', (params) => {
           document.querySelector('#beforeCache').innerHTML = ''
           this.add(params)
         })
       },
       methods: {
         add: function (params) {
-          let last = this.layout[this.layout.length-1]
-          // let x = last.x + last.w
-          // let y = last.y
-          // if ( x + 2 > 12) {
-          //   y = last.y + last.h
-          // }
-          // if (this.selected === 'table') {
-            
-            // 传递配置数据
-            let JSONOptions = JSON.parse(vueOptionsToString(Table.options))
-            let TableOptions = vueStringToOptions(JSONOptions, params)
+          // 传递配置数据
+          let JSONOptions = {}
+          let type = this.selected || this.type
+          if (type === 'table') {
+            JSONOptions = JSON.parse(vueOptionsToString(JTable.options))
+          }
+          let ComponentOptions = vueStringToOptions(JSONOptions, params)
 
-            console.log(this.editing)
-            if (this.editing) {
-              let index = this.layout.findIndex(item => item.i === this.editID)
-              let current = this.layout[index]
-              current.options = TableOptions
-              current.component = Vue.extend(TableOptions)
-              this.editing = false
-            } else {
-              this.layout.push({
-                x: 0,
-                y: 6,
-                w: 8,
-                h: 7,
-                i: Mock.Random.uuid(),
-                options: TableOptions,
-                component: Vue.extend(TableOptions),
-                // props: {
-                //   apiUrl: Table.apiUrl,
-                //   tableOptions: Table.tableOptions
-                // }
-              })
-            }
-          // }
+          console.log(this.editing)
+
+          if (this.editing) {
+            let index = this.layout.findIndex(item => item.i === this.editID)
+            let current = this.layout[index]
+            current.options = ComponentOptions
+            current.component = Vue.extend(ComponentOptions)
+            this.editing = false
+          } else {
+            this.layout.push({
+              x: 0,
+              y: 6,
+              w: 8,
+              h: 7,
+              i: Mock.Random.uuid(),
+              type: 'table',
+              options: ComponentOptions,
+              component: Vue.extend(ComponentOptions)
+            })
+          }
         },
         savePage: function () {
           let layout = [].concat(this.layout)
@@ -80,8 +72,10 @@
           let index = this.layout.findIndex(item => item.i === i)
           this.layout.splice(index, 1)
         },
-        editItem: function(i) {
-          window.eventBus.$emit('tableEdit', i)
+        editItem: function(i,type) {
+          this.type = type
+          this.addComponent()
+          window.eventBus.$emit('editComponent', i)
           this.editing = true
           this.editID = i
         },
@@ -89,12 +83,22 @@
           console.log("Updated layout: ", newLayout)
         },
         addComponent: function () {
-          if (this.selected === 'table') {
-            let TableComponent = Table.create()
-            let tableDiv = document.createElement('div')
-            document.querySelector('#beforeCache').appendChild(tableDiv)
-            TableComponent.$mount(tableDiv)
+          let type = this.selected || this.type
+          if (!type) {
+            this.$notify.error({
+              title: '提示',
+              message: '请选择要添加的组件'
+            })
+            return false
           }
+          let Dialog = ''
+          if (type === 'table') {
+            Dialog = new (Vue.extend(JTable.editOptions))()
+          }
+          Dialog.dialogVisible = true
+          let tableDiv = document.createElement('div')
+          document.querySelector('#beforeCache').appendChild(tableDiv)
+          Dialog.$mount(tableDiv)
         }
       }
 	});

@@ -40,7 +40,7 @@
         :h="item.h"
         :i="item.i">
         <div class="grid-item-operate">
-          <i class="el-icon-edit" @click="editItem(item.i)"></i>
+          <i class="el-icon-edit" @click="editItem(item.i,item.type)"></i>
           <i class="el-icon-delete" @click="deleteItem(item.i)"></i>
         </div>
         <component
