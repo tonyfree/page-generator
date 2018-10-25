@@ -40,16 +40,20 @@
         :h="item.h"
         :i="item.i">
         <div class="grid-item-operate">
-          <i class="el-icon-edit" @click="editItem(item.i,item.type)"></i>
+          <i class="el-icon-edit" @click="editItem(item.i,item.type,item.params)"></i>
           <i class="el-icon-delete" @click="deleteItem(item.i)"></i>
         </div>
         <component
-          v-if="item.component"
           v-bind:is="item.component"
-          ></component>
-        {{item.component ? '' : item.i}}
+          :params="item.params">
+        </component>
       </grid-item>
     </grid-layout>
+    <component
+      v-bind:is="currentDialog"
+      :params="currentParams"
+      v-on:update="add">
+    </component>
   </div>
   <div id="beforeCache"></div>
   <script src="./lib/vue.min.js"></script>

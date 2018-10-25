@@ -1,6 +1,7 @@
 
-  let layout = vueParsingEngine(localStorage.getItem('layout'))
- 
+  let localData = JSON.parse(localStorage.getItem('layout'))
+  let layout = localData ? localData : []
+
 	new Vue({
 	    el: '#app',
 	    data: {
@@ -14,7 +15,9 @@
         }],
         selected: '',
         editing: false,
-        editID: ''
+        editID: '',
+        currentDialog: null,
+        currentParams: {}
       },
       created: function () {
         window.eventBus.$on('createComponent', (params) => {
@@ -24,21 +27,11 @@
       },
       methods: {
         add: function (params) {
-          // 传递配置数据
-          let JSONOptions = {}
           let type = this.selected || this.type
-          if (type === 'table') {
-            JSONOptions = JSON.parse(vueOptionsToString(JTable.options))
-          }
-          let ComponentOptions = vueStringToOptions(JSONOptions, params)
-
-          console.log(this.editing)
-
           if (this.editing) {
             let index = this.layout.findIndex(item => item.i === this.editID)
             let current = this.layout[index]
-            current.options = ComponentOptions
-            current.component = Vue.extend(ComponentOptions)
+            current.params = params
             this.editing = false
           } else {
             this.layout.push({
@@ -47,22 +40,16 @@
               w: 8,
               h: 7,
               i: Mock.Random.uuid(),
-              type: 'table',
-              options: ComponentOptions,
-              component: Vue.extend(ComponentOptions)
+              type: type,
+              params: params,
+              component: 'k-'+type
             })
           }
+          this.currentDialog = null
+          this.currentParams = {}
         },
         savePage: function () {
-          let layout = [].concat(this.layout)
-          layout.forEach(item => {
-            Object.keys(item).forEach(i => {
-              if (i === 'options' || i === 'props') {
-                item[i] = vueOptionsToString(item[i])
-              }
-            })
-          })
-          localStorage.setItem('layout', JSON.stringify(layout))
+          localStorage.setItem('layout', JSON.stringify(this.layout))
           this.$message({
             message: '保存页面成功！',
             type: 'success'
@@ -72,10 +59,11 @@
           let index = this.layout.findIndex(item => item.i === i)
           this.layout.splice(index, 1)
         },
-        editItem: function(i,type) {
+        editItem: function(i,type,params) {
           this.type = type
-          this.addComponent()
-          window.eventBus.$emit('editComponent', i)
+          this.currentDialog = 'k-'+type+'-dialog'
+          this.currentParams = params
+          this.currentParams.dialogVisible = true
           this.editing = true
           this.editID = i
         },
@@ -91,14 +79,8 @@
             })
             return false
           }
-          let Dialog = ''
-          if (type === 'table') {
-            Dialog = new (Vue.extend(JTable.editOptions))()
-          }
-          Dialog.dialogVisible = true
-          let tableDiv = document.createElement('div')
-          document.querySelector('#beforeCache').appendChild(tableDiv)
-          Dialog.$mount(tableDiv)
+          this.currentDialog = 'k-'+type+'-dialog'
+          this.currentParams.dialogVisible = true
         }
       }
 	});

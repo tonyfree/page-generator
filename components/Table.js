@@ -1,31 +1,35 @@
-let JTable  = {
-  options: {
-    template: ''+
-      '<el-table :data="tableData" style="width: 100%">'+
-        '<el-table-column v-for="col in tableOptions" :prop="col.field" :label="col.title" fixed>'+
-        '</el-table-column>' +
-      '</el-table>',
-    created: function () {
-      axios.post(this.apiUrl).then(res => {
-        this.tableData = res.data.lists
-      })
-      window.eventBus.$on('editComponent', (i) => {
-        if (this.$parent.i === i) {
-          window.eventBus.$emit('editDialog', {tableOptions:this.tableOptions,apiUrl:this.apiUrl})
-        }
-      })
-    },
-    data: function() {
-      return {
-        tableData: [],
-        tableOptions: [{title:'',field:''},{title:'',field:''},{title:'',field:''}],
-        apiUrl: ''
-      }
+Vue.component('k-table', {
+  template: ''+
+    '<el-table :data="tableData" style="width: 100%">'+
+      '<el-table-column v-for="col in params.tableOptions" :prop="col.field" :label="col.title" fixed>'+
+      '</el-table-column>' +
+    '</el-table>',
+  props: ['params'],
+  created: function () {
+    this.getData()
+  },
+  data: function() {
+    return {
+      tableData: []
     }
   },
-  editOptions: {
-    template: '' + 
-      '<el-dialog title="配置参数" :visible.sync="dialogVisible" width="40%">'+
+  methods: {
+    getData: function () {
+      axios.post(this.params.apiUrl).then(res => {
+        this.tableData = res.data.lists
+      })
+    }
+  },
+  watch: {
+    'params.apiUrl': function () {
+      this.getData()
+    }
+  }
+})
+
+Vue.component('k-table-dialog', {
+  template: '' +
+    '<el-dialog title="配置参数" :visible.sync="dialogVisible" width="40%">'+
       '<el-form style="max-height: 300px;overflow-y: auto;">'+
         '<el-row v-for="option in tableOptions">'+
           '<el-col :span="12">'+
@@ -58,39 +62,53 @@ let JTable  = {
         '<el-button type="primary" @click="add">确 定</el-button>'+
       '</span>'+
     '</el-dialog>',
-    data: function () {
-      return {
-        // tableOptions: [{title:'',field:''},{title:'',field:''},{title:'',field:''}],
-        // apiUrl: '',
-        tableOptions: [{title:'设备名称',field:'name'},{title:'设备型号',field:'type'},{title:'设备价格',field:'price'}],
-        apiUrl: 'http://rap2api.taobao.org/app/mock/95259/equipment/list',
-        dialogVisible: false,
-        useMock: false
+  props: ['params'],
+  data: function () {
+    return {
+      tableOptions: [{title:'设备名称',field:'name'},{title:'设备型号',field:'type'},{title:'设备价格',field:'price'}],
+      apiUrl: 'http://rap2api.taobao.org/app/mock/95259/equipment/list',
+      dialogVisible: false,
+      useMock: false
+    }
+  },
+  created: function () {
+    this.setData()
+  },
+  methods: {
+    setData: function () {
+      if (this.params.apiUrl) {
+        this.apiUrl = this.params.apiUrl
+      }
+      if (this.params.tableOptions) {
+        this.tableOptions = this.params.tableOptions
+      }
+      if (this.params.dialogVisible) {
+        this.dialogVisible = this.params.dialogVisible
       }
     },
-    created: function () {
-      window.eventBus.$on('editDialog', (params) => {
-        this.tableOptions = params.tableOptions
-        this.apiUrl = params.apiUrl
+    addRow: function () {
+      this.tableOptions.push({
+        title: '',
+        field: ''
       })
     },
-    methods: {
-      addRow: function () {
-        this.tableOptions.push({
-          title: '',
-          field: ''
-        })
-      },
-      add: function () {
-        // 校验
-        if (!this.useMock && !this.apiUrl) {
-          this.$message.error('请填写接口或使用mock');
-          return false
-        }
-        // 传递消息给父组件
-        window.eventBus.$emit('createComponent', {apiUrl:this.apiUrl,tableOptions:this.tableOptions})
-        this.dialogVisible = false
+    add: function () {
+      // 校验
+      if (!this.useMock && !this.apiUrl) {
+        this.$message.error('请填写接口或使用mock');
+        return false
+      }
+      // 传递消息给父组件
+      this.$emit('update', {apiUrl:this.apiUrl,tableOptions:this.tableOptions})
+      this.dialogVisible = false
+    }
+  },
+  watch: {
+    params: {
+      deep: true,
+      handler: function () {
+        this.setData()
       }
     }
   }
-}
+})
