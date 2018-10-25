@@ -13,7 +13,6 @@ function vueOptionsToString (options) {
   return JSON.stringify(options)
 }
 
-
 function vueStringToOptions (options, params) {
   let newOptions = {}
   Object.keys(options).forEach(key => {
