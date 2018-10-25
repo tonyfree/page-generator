@@ -22,6 +22,7 @@ Vue.component('k-table', {
   },
   watch: {
     'params.apiUrl': function () {
+      console.log(123)
       this.getData()
     }
   }
@@ -29,7 +30,7 @@ Vue.component('k-table', {
 
 Vue.component('k-table-dialog', {
   template: '' +
-    '<el-dialog title="配置参数" :visible.sync="dialogVisible" width="40%">'+
+    '<el-dialog title="配置参数" :visible.sync="value" width="40%">'+
       '<el-form style="max-height: 300px;overflow-y: auto;">'+
         '<el-row v-for="option in tableOptions">'+
           '<el-col :span="12">'+
@@ -58,11 +59,11 @@ Vue.component('k-table-dialog', {
         '</el-form-item>'+
       '</el-form>'+
       '<span slot="footer" class="dialog-footer">'+
-        '<el-button @click="dialogVisible = false">取 消</el-button>'+
+        '<el-button @click="cancle">取 消</el-button>'+
         '<el-button type="primary" @click="add">确 定</el-button>'+
       '</span>'+
     '</el-dialog>',
-  props: ['params'],
+  props: ['params','value'],
   data: function () {
     return {
       tableOptions: [{title:'设备名称',field:'name'},{title:'设备型号',field:'type'},{title:'设备价格',field:'price'}],
@@ -72,20 +73,14 @@ Vue.component('k-table-dialog', {
     }
   },
   created: function () {
-    this.setData()
+    if (this.params.apiUrl) {
+      this.apiUrl = this.params.apiUrl
+    }
+    if (this.params.tableOptions) {
+      this.tableOptions = this.params.tableOptions
+    }
   },
   methods: {
-    setData: function () {
-      if (this.params.apiUrl) {
-        this.apiUrl = this.params.apiUrl
-      }
-      if (this.params.tableOptions) {
-        this.tableOptions = this.params.tableOptions
-      }
-      if (this.params.dialogVisible) {
-        this.dialogVisible = this.params.dialogVisible
-      }
-    },
     addRow: function () {
       this.tableOptions.push({
         title: '',
@@ -100,15 +95,10 @@ Vue.component('k-table-dialog', {
       }
       // 传递消息给父组件
       this.$emit('update', {apiUrl:this.apiUrl,tableOptions:this.tableOptions})
-      this.dialogVisible = false
-    }
-  },
-  watch: {
-    params: {
-      deep: true,
-      handler: function () {
-        this.setData()
-      }
+      this.$emit('input', false)
+    },
+    cancle: function () {
+      this.$emit('input', false)
     }
   }
 })

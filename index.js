@@ -17,13 +17,11 @@
         editing: false,
         editID: '',
         currentDialog: null,
-        currentParams: {}
+        currentParams: {},
+        showDialog: false
       },
       created: function () {
-        window.eventBus.$on('createComponent', (params) => {
-          document.querySelector('#beforeCache').innerHTML = ''
-          this.add(params)
-        })
+
       },
       methods: {
         add: function (params) {
@@ -31,7 +29,7 @@
           if (this.editing) {
             let index = this.layout.findIndex(item => item.i === this.editID)
             let current = this.layout[index]
-            current.params = params
+            current.params = JSON.parse(JSON.stringify(params))
             this.editing = false
           } else {
             this.layout.push({
@@ -41,7 +39,7 @@
               h: 7,
               i: Mock.Random.uuid(),
               type: type,
-              params: params,
+              params: JSON.parse(JSON.stringify(params)),
               component: 'k-'+type
             })
           }
@@ -62,8 +60,8 @@
         editItem: function(i,type,params) {
           this.type = type
           this.currentDialog = 'k-'+type+'-dialog'
-          this.currentParams = params
-          this.currentParams.dialogVisible = true
+          this.showDialog = true
+          this.currentParams = JSON.parse(JSON.stringify(params))
           this.editing = true
           this.editID = i
         },
@@ -80,7 +78,7 @@
             return false
           }
           this.currentDialog = 'k-'+type+'-dialog'
-          this.currentParams.dialogVisible = true
+          this.showDialog = true
         }
       }
 	});
